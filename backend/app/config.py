@@ -13,6 +13,12 @@ class Settings(BaseSettings):
     jwt_algorithm: str = "HS256"
     jwt_expire_minutes: int = 480
     cors_origins: str = "http://localhost:5173,http://127.0.0.1:5173"
+    auto_seed: bool = True
+
+    def model_post_init(self, _ctx) -> None:
+        # Render (and Heroku) hand out "postgres://…"; SQLAlchemy needs an explicit driver.
+        if self.database_url.startswith("postgres://"):
+            self.database_url = self.database_url.replace("postgres://", "postgresql+psycopg2://", 1)
 
     @property
     def is_postgres(self) -> bool:

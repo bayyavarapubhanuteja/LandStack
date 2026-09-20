@@ -4,7 +4,10 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.responses import JSONResponse
 
 from .config import settings
-from .database import Base, engine, enable_postgis
+from sqlalchemy import func, select
+
+from .database import Base, SessionLocal, engine, enable_postgis
+from .models import Parcel
 from .routers import admin, analytics, auth, parcels, query, requests
 
 app = FastAPI(
@@ -13,8 +16,8 @@ app = FastAPI(
                 "All data is fictional; department integrations are simulated.",
     version="1.0.0",
 )
-app.add_middleware(CORSMiddleware, allow_origins=settings.cors_list, allow_credentials=True,
-                   allow_methods=["*"], allow_headers=["*"])
+app.add_middleware(CORSMiddleware, allow_origins=settings.cors_list, allow_origin_regex=r"https://.*\.onrender\.com",
+                   allow_credentials=True, allow_methods=["*"], allow_headers=["*"])
 
 
 @app.exception_handler(RequestValidationError)
@@ -30,6 +33,12 @@ async def validation_handler(_: Request, exc: RequestValidationError):
 def startup() -> None:
     Base.metadata.create_all(engine)
     enable_postgis()
+    if settings.auto_seed:
+        with SessionLocal() as db:
+            empty = not db.scalar(select(func.count(Parcel.id)))
+        if empty:  # fresh deployment — load the demo dataset once
+            from .seed import seed
+            seed()
 
 
 for r in (auth.router, parcels.router, requests.router, admin.router, analytics.router, query.router):

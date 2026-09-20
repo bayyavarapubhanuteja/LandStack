@@ -1,4 +1,6 @@
-const BASE = (import.meta.env.VITE_API_URL as string | undefined)?.replace(/\/$/, "") || "";
+const RAW_BASE = (import.meta.env.VITE_API_URL as string | undefined)?.trim().replace(/\/$/, "") || "";
+// Render supplies a bare host (e.g. "landstack-api.onrender.com"); add the scheme when missing.
+const BASE = RAW_BASE && !/^https?:\/\//.test(RAW_BASE) ? `https://${RAW_BASE}` : RAW_BASE;
 const TOKEN_KEY = "ls-token";
 
 export const tokenStore = {
