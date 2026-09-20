@@ -1,30 +1,12 @@
+# Single service: the FastAPI container serves both the REST API and the built
+# React site, so no cross-service URLs or CORS configuration are required.
 services:
   - type: web
-    name: landstack-api
-    runtime: python
+    name: landstack
+    runtime: docker
     plan: free
-    rootDir: backend
-    buildCommand: pip install -r requirements.txt
-    startCommand: uvicorn app.main:app --host 0.0.0.0 --port $PORT
+    dockerfilePath: ./Dockerfile
     healthCheckPath: /api/health
     envVars:
-      # pydantic-core has no wheels for Python 3.14 (Render's default) and cannot build from source here.
-      - key: PYTHON_VERSION
-        value: "3.11.9"
       - key: JWT_SECRET
         generateValue: true
-      - key: CORS_ORIGINS
-        value: https://landstack-frontend.onrender.com
-
-  - type: web
-    name: landstack-frontend
-    runtime: static
-    buildCommand: cd frontend && npm ci && npm run build
-    staticPublishPath: frontend/dist
-    envVars:
-      - key: VITE_API_URL
-        value: https://landstack-api-tidr.onrender.com
-    routes:
-      - type: rewrite
-        source: /*
-        destination: /index.html

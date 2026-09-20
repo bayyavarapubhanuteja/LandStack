@@ -1,7 +1,10 @@
-from fastapi import FastAPI, Request
+from pathlib import Path
+
+from fastapi import FastAPI, HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import JSONResponse
+from fastapi.responses import FileResponse, JSONResponse
+from fastapi.staticfiles import StaticFiles
 
 from .config import settings
 from sqlalchemy import func, select
@@ -48,3 +51,20 @@ for r in (auth.router, parcels.router, requests.router, admin.router, analytics.
 @app.get("/api/health")
 def health():
     return {"status": "ok", "database": "postgis" if settings.is_postgres else "sqlite"}
+
+
+# When the built frontend is bundled alongside the API (single-service deployment),
+# serve it from the same origin so no cross-origin or API-URL configuration is needed.
+STATIC_DIR = Path(__file__).resolve().parent.parent / "static"
+if (STATIC_DIR / "index.html").exists():
+    app.mount("/assets", StaticFiles(directory=STATIC_DIR / "assets"), name="assets")
+
+    @app.get("/{full_path:path}", include_in_schema=False)
+    def spa(full_path: str):
+        """Serve static files, falling back to index.html for client-side routes."""
+        if full_path.startswith("api/"):
+            raise HTTPException(404, "Not found")
+        candidate = (STATIC_DIR / full_path).resolve()
+        if full_path and candidate.is_file() and candidate.is_relative_to(STATIC_DIR):
+            return FileResponse(candidate)
+        return FileResponse(STATIC_DIR / "index.html")
