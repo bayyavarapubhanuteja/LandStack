@@ -22,7 +22,8 @@ export default function AIQuery() {
   const [input, setInput] = useState("");
   const [busy, setBusy] = useState(false);
   const end = useRef<HTMLDivElement>(null);
-  useEffect(() => end.current?.scrollIntoView({ behavior: "smooth" }), [msgs]);
+  // Braces matter: scrollIntoView may return a Promise, which React would try to call as a cleanup.
+  useEffect(() => { end.current?.scrollIntoView({ behavior: "smooth" }); }, [msgs]);
 
   const ask = async (q: string) => {
     if (!q.trim() || busy) return;

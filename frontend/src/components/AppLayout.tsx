@@ -34,7 +34,7 @@ export default function AppLayout() {
   const loc = useLocation();
   const nav = useNavigate();
 
-  useEffect(() => setMobileOpen(false), [loc.pathname]);
+  useEffect(() => { setMobileOpen(false); }, [loc.pathname]);
   useEffect(() => { try { localStorage.setItem("ls-sidebar", collapsed ? "1" : "0"); } catch { /* ignore */ } }, [collapsed]);
 
   const Item = ({ to, label, icon: Icon, end }: { to: string; label: string; icon: typeof Map; end?: boolean }) => (
