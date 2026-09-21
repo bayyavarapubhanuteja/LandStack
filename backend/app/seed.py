@@ -16,13 +16,13 @@ rng = random.Random(1024)
 
 CLUSTERS = [
     {"state": "Telangana", "district": "Rangareddy", "village": "Shamshabad", "code": "TS36RR", "sro": "SRO Shamshabad",
-     "origin": (17.2410, 78.4280), "plan": "HMDA Master Plan 2031", "start": 1021},
+     "origin": (17.1945, 78.4515), "plan": "HMDA Master Plan 2031", "start": 1021},
     {"state": "Telangana", "district": "Medchal-Malkajgiri", "village": "Kompally", "code": "TS37MK", "sro": "SRO Medchal",
      "origin": (17.5370, 78.4840), "plan": "HMDA Master Plan 2031", "start": 1027},
     {"state": "Karnataka", "district": "Bengaluru Urban", "village": "Yelahanka", "code": "KA29BU", "sro": "SRO Yelahanka",
      "origin": (13.1010, 77.5960), "plan": "BDA Revised Master Plan 2031", "start": 1033},
 ]
-COLS, ROWS, CELL = 3, 2, 0.0019
+COLS, ROWS, CELL = 3, 2, 0.0011
 
 # Per-parcel profile: land use, verification, ownership state, registration state, encumbrance, building permission, tax
 PROFILES = {
